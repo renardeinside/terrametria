@@ -11,8 +11,8 @@ class Config:
     schema: str = "terrametria"
     volume: str = "raw"
 
-    @classmethod
-    def from_args(cls) -> Config:
+    @staticmethod
+    def from_args() -> Config:
         args = sys.argv[1:]
         logger.info(f"Arguments: {args}")
         catalog = args[0] if len(args) > 0 else "main"
