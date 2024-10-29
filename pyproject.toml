@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "terrametria"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [{ name = "renardeinside", email = "polarpersonal@gmail.com" }]
+dependencies = []
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/terrametria/_version.py"
+
+[tool.hatch.envs.default]
+# we only needs these dependencies for development
+dependencies = [
+  "pyspark",
+  "delta-spark",
+  "pytest",
+  "pandas",
+  "numpy",
+  "requests",
+]
+
+[project.scripts]
+loader = "terrametria.entrypoint:loader"
