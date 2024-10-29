@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import json
 import pyspark.sql.functions as F
-from terrametria.logger import logger
+from terrametria.logging import logger
 from pyspark.sql import DataFrame
 
 
@@ -51,6 +51,9 @@ class Loader:
 
     def _prepare_catalog(self):
         self.spark.sql(f"CREATE CATALOG IF NOT EXISTS {self.config.catalog}")
+        self.spark.sql(
+            f"CREATE SCHEMA IF NOT EXISTS {self.config.catalog}.{self.config.schema}"
+        )
         self.spark.sql(
             f"CREATE VOLUME IF NOT EXISTS {self.config.catalog}.{self.config.schema}.{self.config.volume}"
         )
