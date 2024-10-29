@@ -97,3 +97,4 @@ src/terrametria/_version.py
 
 
 **/*.tsbuildinfo
+.databricks

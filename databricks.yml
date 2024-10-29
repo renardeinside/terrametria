@@ -7,21 +7,38 @@ artifacts:
     path: .
     build: hatch build -t wheel
 
+variables:
+  catalog:
+    type: string
+    description: The catalog name
+    default: main
+  schema:
+    type: string
+    description: The schema name
+    default: default
+
 resources:
   jobs:
     terrametria:
-      name: loader
+      name: terrametria
 
       tasks:
         - task_key: main
           python_wheel_task:
             package_name: terrametria
             entry_point: loader
-          libraries:
-            # By default we just include the .whl file generated for the default_python package.
-            # See https://docs.databricks.com/dev-tools/bundles/library-dependencies.html
-            # for more information on how to add other libraries.
-            - whl: ../dist/*.whl
+            parameters:
+              - ${var.catalog}
+              - ${var.schema}
+
+          environment_key: Default
+
+      environments:
+        - environment_key: Default
+          spec:
+            client: "1"
+            dependencies:
+              - ./dist/*.whl
 
 targets:
   dev:
