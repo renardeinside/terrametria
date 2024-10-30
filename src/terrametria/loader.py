@@ -130,7 +130,7 @@ class Loader:
         self.load_file(url=self.DENSITY_URL, output_path=self.density_path)
 
         full_df = self.get_full_df()
-        full_df.write.format("delta").mode("overwrite").save(
-            f"{self.config.catalog}.{self.config.schema}.population_density"
+        full_df.write.format("delta").mode("overwrite").saveAsTable(
+            f"{self.config.catalog}.{self.config.schema}.{self.config.density_table}"
         )
         logger.info("Loaded population density data")

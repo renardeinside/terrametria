@@ -13,6 +13,9 @@ keywords = []
 authors = [{ name = "renardeinside", email = "polarpersonal@gmail.com" }]
 dependencies = []
 
+[project.optional-dependencies]
+server = ["fastapi", "uvicorn", "databricks-sql-connector", "python-dotenv"]
+
 [tool.hatch.version]
 source = "vcs"
 
@@ -20,6 +23,7 @@ source = "vcs"
 version-file = "src/terrametria/_version.py"
 
 [tool.hatch.envs.default]
+python = "3.10"
 # we only needs these dependencies for development
 dependencies = [
   "pyspark",

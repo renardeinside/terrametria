@@ -98,3 +98,6 @@ src/terrametria/_version.py
 
 **/*.tsbuildinfo
 .databricks
+
+src/terrametria/static/*
+!src/terrametria/static/.gitkeep
