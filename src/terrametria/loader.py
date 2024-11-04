@@ -79,7 +79,7 @@ class Loader:
             self.convert_and_explode(
                 "dimension.geo.category.index",
                 "map<string, bigint>",
-                "nats_id",
+                "nuts_id",
                 "index",
             )
         )
@@ -88,14 +88,14 @@ class Loader:
             self.convert_and_explode(
                 "dimension.geo.category.label",
                 "map<string, string>",
-                "nats_id",
+                "nuts_id",
                 "long_label",
             )
         )
 
         return (
             density.join(indexes, on="index", how="inner")
-            .join(labels, on="nats_id", how="inner")
+            .join(labels, on="nuts_id", how="inner")
             .toPandas()
         )
 
