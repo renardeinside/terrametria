@@ -2,16 +2,24 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import Index from "@/pages/Index";
+import NavBar from "@/components/Navbar";
+import DensityMap from "@/pages/DensityMap";
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <div className="max-w-screen-2xl mx-auto">
+          <NavBar />
+
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/map" element={<DensityMap />} />
+          </Routes>
+        </div>
+      </ThemeProvider>
+
+    </BrowserRouter>
   );
 }
 

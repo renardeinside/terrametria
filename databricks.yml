@@ -24,6 +24,7 @@ resources:
 
       tasks:
         - task_key: main
+          max_retries: 0
           python_wheel_task:
             package_name: terrametria
             entry_point: loader

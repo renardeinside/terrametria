@@ -100,4 +100,3 @@ src/terrametria/_version.py
 .databricks
 
 src/terrametria/static/*
-!src/terrametria/static/.gitkeep

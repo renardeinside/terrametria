@@ -2,8 +2,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 import sys
 
-from terrametria.logging import logger
+from terrametria.logger import logger
 import os
+from databricks.sdk.core import Config as DatabricksConfig
 
 
 @dataclass
@@ -13,6 +14,13 @@ class EndpointConfig:
     client_id: str
     client_secret: str
 
+    def to_databricks_config(self) -> DatabricksConfig:
+        return DatabricksConfig(
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            host=f"https://{self.host}",
+        )
+
 
 @dataclass
 class Config:
@@ -21,7 +29,6 @@ class Config:
     volume: str
     density_table: str = "population_density"
     endpoint: EndpointConfig | None = None
-    
 
     @staticmethod
     def from_args() -> Config:
@@ -37,10 +44,16 @@ class Config:
         catalog = os.getenv("TERRAMETRIA_CATALOG", "main")
         schema = os.getenv("TERRAMETRIA_SCHEMA", "terrametria")
         volume = os.getenv("TERRAMETRIA_VOLUME", "raw")
+
         endpoint_cfg = EndpointConfig(
-            host=os.getenv("DATABRICKS_HOST"),
-            http_path=os.getenv("DATABRICKS_HTTP_PATH"),
-            client_id=os.getenv("DATABRICKS_CLIENT_ID"),
-            client_secret=os.getenv("DATABRICKS_CLIENT_SECRET"),
+            host=os.environ["DATABRICKS_HOST"],
+            http_path=os.environ["DATABRICKS_HTTP_PATH"],
+            client_id=os.environ["DATABRICKS_CLIENT_ID"],
+            client_secret=os.environ["DATABRICKS_CLIENT_SECRET"],
         )
-        return Config(catalog, schema, volume, endpoint_cfg)
+        return Config(
+            catalog=catalog,
+            schema=schema,
+            volume=volume,
+            endpoint=endpoint_cfg,
+        )

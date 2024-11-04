@@ -11,10 +11,10 @@ requires-python = ">=3.8"
 license = "MIT"
 keywords = []
 authors = [{ name = "renardeinside", email = "polarpersonal@gmail.com" }]
-dependencies = []
+dependencies = ["geopandas"]
 
 [project.optional-dependencies]
-server = ["fastapi", "uvicorn", "databricks-sql-connector", "python-dotenv"]
+server = ["fastapi", "uvicorn", "databricks-sql-connector", "python-dotenv", "databricks-sdk"]
 
 [tool.hatch.version]
 source = "vcs"
@@ -32,7 +32,16 @@ dependencies = [
   "pandas",
   "numpy",
   "requests",
+  "httpx",
 ]
 
 [project.scripts]
 loader = "terrametria.entrypoint:loader"
+
+[tool.hatch.envs.default.scripts]
+dev-frontend = "yarn --cwd src/frontend dev"
+dev-backend = "uvicorn terrametria.backend:app --reload --host=0.0.0.0 --port=6006"
+deploy-and-run = [
+  'databricks bundle deploy --var="catalog=ivt" --var="schema=terrametria"',
+  "databricks bundle run terrametria"
+]
