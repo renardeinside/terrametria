@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+from pathlib import Path
 import sys
 
 from terrametria.logger import logger
@@ -7,7 +8,7 @@ import os
 from databricks.sdk.core import Config as DatabricksConfig
 
 
-@dataclass
+@dataclass(frozen=True)
 class EndpointConfig:
     host: str
     http_path: str
@@ -22,13 +23,23 @@ class EndpointConfig:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class Config:
     catalog: str
     schema: str
     volume: str
     density_table: str = "population_density"
     endpoint: EndpointConfig | None = None
+
+    @property
+    def output_path(self) -> Path:
+        return (
+            Path("/Volumes/")
+            / self.catalog
+            / self.schema
+            / self.volume
+            / "enriched_density.geojson"
+        )
 
     @staticmethod
     def from_args() -> Config:

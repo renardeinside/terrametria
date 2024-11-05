@@ -10,7 +10,6 @@ import geopandas as gpd
 
 
 class Loader:
-    NUTS_URL = "https://gisco-services.ec.europa.eu/distribution/v2/nuts/geojson/NUTS_RG_01M_2024_3035.geojson"
     DENSITY_URL = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/DEMO_R_D3DENS?format=JSON&lang=EN&time=2022"
     COUNTRIES_URL = "https://gisco-services.ec.europa.eu/distribution/v2/countries/geojson/CNTR_RG_01M_2024_3035.geojson"
 
@@ -32,16 +31,22 @@ class Loader:
         return self.volume_path / "nuts.geojson"
 
     @property
+    def nuts_url(self) -> str:
+        # based on https://gisco-services.ec.europa.eu/distribution/v2/nuts/nuts-2024-files.html
+        resolution = "01M"
+        projection = 4326  # WGS84
+        subset = "LEVL_3"
+        spatial_type = "RG"  # Regions
+        year = 2024
+        return f"https://gisco-services.ec.europa.eu/distribution/v2/nuts/geojson/NUTS_{spatial_type}_{resolution}_{year}_{projection}_{subset}.geojson"
+
+    @property
     def density_path(self) -> Path:
         return self.volume_path / "density.json"
 
     @property
     def countries_path(self) -> Path:
         return self.volume_path / "countries.geojson"
-
-    @property
-    def output_path(self) -> Path:
-        return self.volume_path / "enriched_density.geojson"
 
     @staticmethod
     def load_file(url: str, output_path: Path, chunk_size: int = 1024 * 1024):
@@ -125,9 +130,9 @@ class Loader:
         self._prepare_catalog()
 
         self.load_file(url=self.COUNTRIES_URL, output_path=self.countries_path)
-        self.load_file(url=self.NUTS_URL, output_path=self.nuts_path)
+        self.load_file(url=self.nuts_url, output_path=self.nuts_path)
         self.load_file(url=self.DENSITY_URL, output_path=self.density_path)
 
         full_df = self.get_full_df()
-        full_df.to_file(self.output_path, driver="GeoJSON")
+        full_df.to_file(self.config.output_path, driver="GeoJSON")
         logger.info("Finished preparing population density data")

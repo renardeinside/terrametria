@@ -1,9 +1,7 @@
 from importlib.resources import files
 from pathlib import Path
-from typing import Annotated, Generator
+from typing import Annotated, Callable, Generator
 from fastapi import Depends, FastAPI
-from databricks import sql
-from databricks.sql.client import Connection
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from terrametria.config import Config
@@ -12,7 +10,8 @@ import io
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from terrametria.logger import logger
-from databricks.sdk.core import oauth_service_principal
+from databricks.sdk import WorkspaceClient
+from functools import lru_cache
 
 STATIC_ASSETS_PATH = Path(str(files("terrametria"))) / Path("static")
 DOTENV_FILE = Path(__file__).parent.parent.parent / Path(".env")
@@ -28,55 +27,21 @@ def config() -> Config:
     return Config.from_env()
 
 
-def connection(
-    config: Annotated[Config, Depends(config)],
-) -> Generator[Connection, None, None]:
-    logger.info(
-        f"Connecting to Databricks SQL at {config.endpoint.host}{config.endpoint.http_path}"
-    )
-
-    def credential_provider():
-        return oauth_service_principal(config.endpoint.to_databricks_config())
-
-    with sql.connect(
-        server_hostname=config.endpoint.host,
-        http_path=config.endpoint.http_path,
-        credentials_provider=credential_provider,
-        use_cloud_fetch=True,
-    ) as connection:
-        logger.info("Connected to Databricks SQL")
-        yield connection
-
-    logger.info("Disconnected from Databricks SQL")
-
-
-def density_data_stream(
-    connection: Annotated[Connection, Depends(connection)],
-    config: Annotated[Config, Depends(config)],
+@lru_cache
+def density_file(
+    config: Annotated[Config, Depends(config)]
 ) -> Generator[bytes, None, None]:
-    logger.info(
-        f"Fetching density data from {config.catalog}.{config.schema}.{config.density_table}"
-    )
-    with connection.cursor() as cursor:
-        cursor.execute(
-            f"SELECT * FROM {config.catalog}.{config.schema}.{config.density_table} where cntr_id = 'DE'" 
-        )
-        table: pa.Table = cursor.fetchall_arrow()
+    logger.info(f"Loading density file")
+    w = WorkspaceClient(config=config.endpoint.to_databricks_config())
+    response = w.files.download(config.output_path.as_posix())
+    bytes_io = io.BytesIO(response.contents.read())
+    logger.info(f"Loaded density file")
 
-        logger.info(f"Streaming density data")
+    def generator():
+        bytes_io.seek(0)
+        yield from bytes_io
 
-        def stream_arrow_data():
-            sink = io.BytesIO()
-            writer = pa.ipc.new_stream(sink, table.schema)
-            writer.write_table(table)
-            sink.seek(0)
-
-            while chunk := sink.read(1024 * 1024):  # 1MB
-                yield chunk
-
-            logger.info(f"Streaming completed")
-
-        return stream_arrow_data()
+    return generator
 
 
 app = FastAPI()
@@ -109,8 +74,6 @@ async def client_side_routing(_, __):
 
 @api_app.get("/density")
 def get_density(
-    density_data_stream: Generator[bytes, None, None] = Depends(density_data_stream)
+    density_data_stream: Annotated[Generator[bytes, None, None], Depends(density_file)]
 ):
-    return StreamingResponse(
-        density_data_stream, media_type="application/octet-stream"
-    )
+    return StreamingResponse(density_data_stream(), media_type="application/geo+json")
