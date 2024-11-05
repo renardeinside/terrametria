@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from importlib.resources import files
 from pathlib import Path
 from typing import Annotated, Callable, Generator
@@ -46,6 +47,8 @@ def density_file(
 
 app = FastAPI()
 ui_app = StaticFiles(directory=STATIC_ASSETS_PATH, html=True)
+
+
 api_app = FastAPI(dependencies=[Depends(config)])
 
 origins = [

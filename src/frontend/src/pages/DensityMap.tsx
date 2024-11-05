@@ -2,14 +2,18 @@ import Loading from "@/components/Loading";
 import { Suspense, useState } from "react";
 import { GeoJsonLayer } from '@deck.gl/layers';
 
-import { LightingEffect, AmbientLight, _SunLight as SunLight, MapViewState } from '@deck.gl/core';
+import { LightingEffect, AmbientLight, _SunLight as SunLight, MapViewState, PickingInfo } from '@deck.gl/core';
 import { Map } from 'react-map-gl/maplibre';
 import DeckGL from '@deck.gl/react';
 import { BASEMAP } from '@deck.gl/carto';
 import { useTheme } from "@/components/theme-provider";
-import { FeatureProps } from "@/lib/types";
+import { DensityFeatureCollection, FeatureProps } from "@/lib/types";
+import { useAtomValue } from "jotai";
+import { $densityFeatureCollection } from "@/lib/stores";
 
-const DensityMapView = () => {
+const DensityMapView: React.FC<
+    { densityData: DensityFeatureCollection }
+> = ({ densityData }) => {
     const { theme } = useTheme();
     const INITIAL_VIEW_STATE: MapViewState = {
         latitude: 45.1109,
@@ -41,25 +45,54 @@ const DensityMapView = () => {
     const layers = [
         new GeoJsonLayer<FeatureProps>({
             id: 'geojson',
-            data: 'http://0.0.0.0:6006/api/density',
-            opacity: 0.8,
+            data: densityData,
+            opacity: 0.1,
             stroked: false,
             filled: true,
             extruded: true,
             wireframe: true,
-            getElevation: f => f.properties.density * 100,
-            getLineColor: [255, 255, 255],
+            getElevation: f => {
+                return f.properties.density * 5
+            },
+            getFillColor: f => {
+                const density = f.properties.density;
+                const r = Math.min(255, density * 10);
+                const g = Math.min(255, 255 - density * 10);
+                const b = 128;
+                return [r, g, b];
+            },
+            // getLineColor: [255, 255, 255],
+            pickable: true,
+            autoHighlight: true,
         })
     ]
 
+    const getTooltip = (info: PickingInfo) => {
+        return info.object ? {
+            html: `
+                <div>Country: ${info.object.properties.name_engl}</div>
+                <div>Locality: ${info.object.properties.long_label}</div>
+                <div>Density per m2: ${info.object.properties.density}</div>
+            `,
+            style: {
+                backgroundColor: theme === "dark" ? 'black' : 'white',
+                color: theme === "dark" ? 'white' : 'black',
+                fontSize: '12px',
+                fontFamily: 'Monospace',
+                padding: '4px',
+            }
+        } : null;
+    }
+
     return (
         <div className="w-full mx-10">
-            <div className="h-[calc(100vh-120px)] w-[calc(90vw)] relative rounded-md">
+            <div className="h-[calc(100vh-120px)] w-[calc(90vw)] relative">
                 <DeckGL
                     controller={true}
                     effects={effects}
                     initialViewState={INITIAL_VIEW_STATE}
                     layers={layers}
+                    getTooltip={getTooltip}
                 >
                     <Map reuseMaps mapStyle={
                         theme === "dark" ? BASEMAP.DARK_MATTER : BASEMAP.POSITRON
@@ -71,9 +104,9 @@ const DensityMapView = () => {
 
 }
 const DensityMapInternals = () => {
-
+    const densityFeatureCollection = useAtomValue($densityFeatureCollection);
     return (
-        <DensityMapView />
+        <DensityMapView densityData={densityFeatureCollection} />
     )
 }
 

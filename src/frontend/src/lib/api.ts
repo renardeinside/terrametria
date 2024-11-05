@@ -1,5 +1,6 @@
 import axios from "axios";
-import * as aq from 'arquero';
+import { FeatureCollection, Geometry } from "geojson";
+import { FeatureProps } from "./types";
 
 const apiClient = axios.create({
     baseURL: "http://localhost:6006/api",
@@ -8,9 +9,7 @@ const apiClient = axios.create({
 export const api = {
     getDensity: async () => {
         const resp = await apiClient.get("density", {
-            responseType: "arraybuffer",
         });
-        const rawData = new Uint8Array(resp.data);
-        return aq.fromArrow(rawData)
+        return resp.data as FeatureCollection<Geometry, FeatureProps>
     }
 };

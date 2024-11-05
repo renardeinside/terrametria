@@ -1,3 +1,4 @@
+import pyproj
 from pyspark.sql import SparkSession
 from terrametria.config import Config
 import requests
@@ -8,10 +9,15 @@ from terrametria.logger import logger
 from pyspark.sql import DataFrame, Column
 import geopandas as gpd
 
+# this is to match to match https://deck.gl/docs/developer-guide/views
+PROJECTION = (
+    3857  # also called WGS84 Web Mercator Auxiliary Sphere, coordinates in meters
+)
+
 
 class Loader:
     DENSITY_URL = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/DEMO_R_D3DENS?format=JSON&lang=EN&time=2022"
-    COUNTRIES_URL = "https://gisco-services.ec.europa.eu/distribution/v2/countries/geojson/CNTR_RG_01M_2024_3035.geojson"
+    COUNTRIES_URL = f"https://gisco-services.ec.europa.eu/distribution/v2/countries/geojson/CNTR_RG_01M_2024_{PROJECTION}.geojson"
 
     def __init__(self, config: Config):
         self.config = config
@@ -34,11 +40,10 @@ class Loader:
     def nuts_url(self) -> str:
         # based on https://gisco-services.ec.europa.eu/distribution/v2/nuts/nuts-2024-files.html
         resolution = "01M"
-        projection = 4326  # WGS84
         subset = "LEVL_3"
         spatial_type = "RG"  # Regions
         year = 2024
-        return f"https://gisco-services.ec.europa.eu/distribution/v2/nuts/geojson/NUTS_{spatial_type}_{resolution}_{year}_{projection}_{subset}.geojson"
+        return f"https://gisco-services.ec.europa.eu/distribution/v2/nuts/geojson/NUTS_{spatial_type}_{resolution}_{year}_{PROJECTION}_{subset}.geojson"
 
     @property
     def density_path(self) -> Path:
@@ -134,5 +139,5 @@ class Loader:
         self.load_file(url=self.DENSITY_URL, output_path=self.density_path)
 
         full_df = self.get_full_df()
-        full_df.to_file(self.config.output_path, driver="GeoJSON")
+        full_df.to_file(self.config.output_path, driver="GeoJSON", crs=pyproj.CRS(PROJECTION))
         logger.info("Finished preparing population density data")
