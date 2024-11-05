@@ -1,0 +1,9 @@
+# Databricks app configuration file
+
+command: ['uvicorn, 'terrametria.backend:app',  '--host=0.0.0.0']
+
+env:
+  - name: "TERRAMETRIA_CATALOG"
+    value: "ivt"
+  - name: "TERRAMETRIA_SCHEMA"
+    value: "terrametria"
