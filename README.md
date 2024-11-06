@@ -5,10 +5,6 @@ This project shows an example of interactive 3d density map, with data processed
 > Source data loaded from HDX (Humanitarian Data Exchange) and is provided by Meta.
 Please read more about the data [here](https://dataforgood.facebook.com/dfg/docs/high-resolution-population-density-maps-demographic-estimates-documentation).
 
-<p align="center">
-    <img src="./assets/logo.png" class="align-center" alt="logo" />
-</p>
-
 ## Local development
 
 Prerequisites:
