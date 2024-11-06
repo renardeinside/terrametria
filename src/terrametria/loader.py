@@ -13,6 +13,7 @@ import io
 
 
 class Loader:
+    # link to the CSV-formatted population density data for Germany
     SOURCE_URL = "https://data.humdata.org/dataset/7d08e2b0-b43b-43fd-a6a6-a308f222cdb2/resource/77a44470-f80a-44be-9bb2-3e904dbbe9b1/download/population_deu_2019-07-01.csv.zip"
 
     def __init__(self, config: Config):
