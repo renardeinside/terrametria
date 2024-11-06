@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
 import { ModeToggle } from "./mode-toggle"
-import { Boxes, LandPlot } from "lucide-react";
+import { Boxes } from "lucide-react";
 
 const NavBar = () => {
     const { pathname } = useLocation();
