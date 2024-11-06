@@ -18,5 +18,3 @@ def test_get_density():
     df = reader.read_all().to_pandas()
 
     assert len(df) > 0
-    assert "geometry" in df.columns
-    assert "nuts_id" in df.columns

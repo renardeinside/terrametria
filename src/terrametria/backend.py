@@ -99,8 +99,6 @@ def density_data_stream(
 
 app = FastAPI()
 ui_app = StaticFiles(directory=STATIC_ASSETS_PATH, html=True)
-
-
 api_app = FastAPI(dependencies=[Depends(config)])
 
 origins = [
