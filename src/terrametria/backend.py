@@ -64,12 +64,15 @@ def density_data_stream(
                 SELECT 
                 hex,
                 CASE 
-                    WHEN value > percentile(value, 0.95) OVER () THEN percentile(value, 0.95) OVER ()
+                    WHEN 
+                        value > percentile(value, 0.95) OVER () 
+                    THEN 
+                        percentile(value, 0.95) OVER ()
                     ELSE value
                 END AS value
                 FROM (
                 SELECT 
-                    h3_h3tostring(h3_longlatash3(lon, lat, 7)) AS hex, 
+                    h3_h3tostring(h3_longlatash3(lon, lat, 8)) AS hex, 
                     avg(population) AS value
                 FROM {config.full_table_name}
                 GROUP BY 1
