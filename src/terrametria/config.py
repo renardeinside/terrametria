@@ -11,9 +11,9 @@ from databricks.sdk.core import Config as DatabricksConfig
 @dataclass(frozen=True)
 class EndpointConfig:
     host: str
-    http_path: str
     client_id: str
     client_secret: str
+    http_path: str
 
     def to_databricks_config(self) -> DatabricksConfig:
         return DatabricksConfig(
@@ -31,15 +31,10 @@ class Config:
     density_table: str = "population_density"
     endpoint: EndpointConfig | None = None
 
+    
     @property
-    def output_path(self) -> Path:
-        return (
-            Path("/Volumes/")
-            / self.catalog
-            / self.schema
-            / self.volume
-            / "enriched_density.geojson"
-        )
+    def full_table_name(self) -> str:
+        return f"{self.catalog}.{self.schema}.{self.density_table}"
 
     @staticmethod
     def from_args() -> Config:

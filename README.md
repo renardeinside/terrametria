@@ -1,3 +1,2 @@
-# Terrametria - 3d population density map
-
+# Terrametria - 3D population density map
 

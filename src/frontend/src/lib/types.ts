@@ -1,9 +1,22 @@
-import { FeatureCollection, Geometry } from "geojson";
-
-export interface FeatureProps {
-    density: number;
-    long_label: string;
-    name_engl: string;
+export type DensityPoint = {
+    hex: string;
+    value: number;
 }
 
-export type DensityFeatureCollection = FeatureCollection<Geometry, FeatureProps>;
+
+
+export enum AdjustFunction {
+    NONE = "none",
+    SQRT = "sqrt",
+    LOG = "log",
+    EXP = "exp",
+}
+
+export type MapSettings = {
+    coverage: number;
+    opacity: number;
+    elevation: number;
+    fillColor: string;
+    detalization: string;
+    adjustFunction: AdjustFunction;
+}

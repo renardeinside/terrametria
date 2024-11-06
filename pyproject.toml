@@ -43,11 +43,15 @@ dependencies = [
 loader = "terrametria.entrypoint:loader"
 
 [tool.hatch.envs.default.scripts]
+
 dev-frontend = "yarn --cwd src/frontend dev"
-dev-backend = "uvicorn terrametria.backend:app --reload --host=0.0.0.0 --port=6006"
+build-frontend = "yarn --cwd src/frontend build"
+
+dev-backend = "uvicorn terrametria.backend:app --reload --host=0.0.0.0 --port=8000"
 deploy-and-run = [
   'databricks bundle deploy --var="catalog=ivt" --var="schema=terrametria"',
   "databricks bundle run terrametria",
 ]
 
-full-build = ["yarn --cwd src/frontend build", 'hatch build -t wheel']
+
+

@@ -8,16 +8,12 @@ import pyspark.sql.functions as F
 from terrametria.logger import logger
 from pyspark.sql import DataFrame, Column
 import geopandas as gpd
-
-# this is to match to match https://deck.gl/docs/developer-guide/views
-PROJECTION = (
-    3857  # also called WGS84 Web Mercator Auxiliary Sphere, coordinates in meters
-)
+import zipfile
+import io
 
 
 class Loader:
-    DENSITY_URL = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/DEMO_R_D3DENS?format=JSON&lang=EN&time=2022"
-    COUNTRIES_URL = f"https://gisco-services.ec.europa.eu/distribution/v2/countries/geojson/CNTR_RG_01M_2024_{PROJECTION}.geojson"
+    SOURCE_URL = "https://data.humdata.org/dataset/7d08e2b0-b43b-43fd-a6a6-a308f222cdb2/resource/77a44470-f80a-44be-9bb2-3e904dbbe9b1/download/population_deu_2019-07-01.csv.zip"
 
     def __init__(self, config: Config):
         self.config = config
@@ -32,35 +28,11 @@ class Loader:
             / self.config.volume
         )
 
-    @property
-    def nuts_path(self) -> Path:
-        return self.volume_path / "nuts.geojson"
-
-    @property
-    def nuts_url(self) -> str:
-        # based on https://gisco-services.ec.europa.eu/distribution/v2/nuts/nuts-2024-files.html
-        resolution = "01M"
-        subset = "LEVL_3"
-        spatial_type = "RG"  # Regions
-        year = 2024
-        return f"https://gisco-services.ec.europa.eu/distribution/v2/nuts/geojson/NUTS_{spatial_type}_{resolution}_{year}_{PROJECTION}_{subset}.geojson"
-
-    @property
-    def density_path(self) -> Path:
-        return self.volume_path / "density.json"
-
-    @property
-    def countries_path(self) -> Path:
-        return self.volume_path / "countries.geojson"
-
     @staticmethod
-    def load_file(url: str, output_path: Path, chunk_size: int = 1024 * 1024):
-        logger.info(f"Downloading {url} to {output_path}")
+    def load_file_and_unzip(url: str, output_path: Path):
         response = requests.get(url)
-        with output_path.open("wb") as f:
-            for chunk in response.iter_content(chunk_size=chunk_size):
-                f.write(chunk)
-        logger.info(f"Downloaded {url} to {output_path}")
+        with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+            z.extractall(output_path)
 
     def _prepare_catalog(self):
         self.spark.sql(f"CREATE CATALOG IF NOT EXISTS {self.config.catalog}")
@@ -71,73 +43,24 @@ class Loader:
             f"CREATE VOLUME IF NOT EXISTS {self.config.catalog}.{self.config.schema}.{self.config.volume}"
         )
 
-    @staticmethod
-    def convert_and_explode(
-        column: str, map_schema: str, key_alias: str, value_alias: str
-    ) -> Column:
-        map_conversion = F.from_json(F.to_json(F.col(column)), map_schema)
-        return F.explode(map_conversion).alias(key_alias, value_alias)
-
-    def get_density_df(self) -> pd.DataFrame:
-        density_base = self.spark.read.format("json").load(self.density_path.as_posix())
-
-        density = density_base.select(
-            self.convert_and_explode("value", "map<string, double>", "index", "density")
-        )
-
-        indexes = density_base.select(
-            self.convert_and_explode(
-                "dimension.geo.category.index",
-                "map<string, bigint>",
-                "nuts_id",
-                "index",
-            )
-        )
-
-        labels = density_base.select(
-            self.convert_and_explode(
-                "dimension.geo.category.label",
-                "map<string, string>",
-                "nuts_id",
-                "long_label",
-            )
-        )
-
-        return (
-            density.join(indexes, on="index", how="inner")
-            .join(labels, on="nuts_id", how="inner")
-            .toPandas()
-        )
-
-    def get_nuts_df(self) -> gpd.GeoDataFrame:
-        nuts = gpd.read_file(self.nuts_path)
-        nuts.columns = [c.lower() for c in nuts.columns]
-        return nuts
-
-    def get_countries_df(self) -> gpd.GeoDataFrame:
-        countries = gpd.read_file(self.countries_path)
-        countries.columns = [c.lower() for c in countries.columns]
-        countries = countries[
-            ["cntr_id", "name_engl", "cntr_name"]
-        ]  # only keep the columns we need
-        countries.rename(columns={"cntr_id": "cntr_code"}, inplace=True)
-        return countries
-
-    def get_full_df(self) -> gpd.GeoDataFrame:
-        nuts = self.get_nuts_df()
-        density = self.get_density_df()
-        countries = self.get_countries_df()
-
-        return nuts.merge(density, on="nuts_id").merge(countries, on="cntr_code")
-
     def run(self):
         logger.info("Preparing population density data")
         self._prepare_catalog()
 
-        self.load_file(url=self.COUNTRIES_URL, output_path=self.countries_path)
-        self.load_file(url=self.nuts_url, output_path=self.nuts_path)
-        self.load_file(url=self.DENSITY_URL, output_path=self.density_path)
+        store_path = self.volume_path / "population"
 
-        full_df = self.get_full_df()
-        full_df.to_file(self.config.output_path, driver="GeoJSON", crs=pyproj.CRS(PROJECTION))
+        self.load_file_and_unzip(self.SOURCE_URL, store_path)
+
+        src = (
+            self.spark.read.format("csv")
+            .option("inferSchema", True)
+            .option("header", True)
+            .load(store_path.as_posix())
+            .withColumnRenamed("Lat", "lat")
+            .withColumnRenamed("Lon", "lon")
+            .withColumnRenamed("Population", "population")
+        )
+        src.write.format("delta").mode("overwrite").saveAsTable(
+            self.config.full_table_name
+        )
         logger.info("Finished preparing population density data")
