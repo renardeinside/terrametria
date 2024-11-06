@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
 import { ModeToggle } from "./mode-toggle"
-import { LandPlot } from "lucide-react";
+import { Boxes, LandPlot } from "lucide-react";
 
 const NavBar = () => {
     const { pathname } = useLocation();
@@ -13,7 +13,7 @@ const NavBar = () => {
                         {pathname !== "/" && (
                             <Link to="/" >
                                 <div className="flex flex-row space-x-2 justify-center items-center">
-                                    <LandPlot className="h-10 tracking-tighter text-black dark:text-white whitespace-pre-wrap" />
+                                <Boxes className="h-10 rotate-180" />
                                     <span className="font-medium text-2xl">Terrametria</span>
                                 </div>
                             </Link>
