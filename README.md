@@ -79,7 +79,7 @@ After the app deployment, add a SQL warehouse to the app resources via UI. Give 
 
 ## Example 
 
-![Terrametria](./assets/map_view.png.png)
+![Terrametria](./assets/map_view.png)
 
 ## Tech used
 
