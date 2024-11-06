@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import Index from "@/pages/Index";
 import NavBar from "@/components/Navbar";
 import DensityMap from "@/pages/DensityMap";
+import NotFound from "@/pages/NotFound";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/map" element={<DensityMap />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </ThemeProvider>
