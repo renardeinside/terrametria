@@ -6,7 +6,7 @@ This project shows an example of interactive 3d density map, with data processed
 Please read more about the data [here](https://dataforgood.facebook.com/dfg/docs/high-resolution-population-density-maps-demographic-estimates-documentation).
 
 <p align="center">
-    <img src="./assets/logo.png" class="align-center" width="200" height="200" alt="logo" />
+    <img src="./assets/logo.png" class="align-center" alt="logo" />
 </p>
 
 ## Local development
