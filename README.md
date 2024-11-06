@@ -74,3 +74,17 @@ For example:
 ```
 
 During the App deployment, another service principal will be created. Make sure to grant access to the catalog and schema to this principal.
+After the app deployment, add a SQL warehouse to the app resources via UI. Give it a key `sql_warehouse`. The value should be the ID of the SQL warehouse that you want to use for the app.
+
+
+## Tech used
+
+- Frontend:
+  - [React](https://react.dev/)
+  - [TypeScript](https://www.typescriptlang.org/)
+  - [Vite](https://vite.dev/)
+  - [Deck.gl](https://deck.gl/)
+- Backend:
+  - FastAPI
+  - Databricks
+  - Databricks SQL

@@ -7,3 +7,5 @@ env:
     value: "ivt"
   - name: "TERRAMETRIA_SCHEMA"
     value: "terrametria"
+  - name: "DATABRICKS_SQL_WAREHOUSE_ID"
+    valueFrom: "sql_warehouse"
