@@ -51,9 +51,12 @@ class Config:
         schema = os.getenv("TERRAMETRIA_SCHEMA", "terrametria")
         volume = os.getenv("TERRAMETRIA_VOLUME", "raw")
 
+        def warehouse_id_to_http_path(wh_id: str) -> str:
+            return f"/sql/1.0/warehouses/{wh_id}"
+
         endpoint_cfg = EndpointConfig(
             host=os.environ["DATABRICKS_HOST"],
-            http_path=os.environ["DATABRICKS_HTTP_PATH"],
+            http_path=warehouse_id_to_http_path(os.environ["DATABRICKS_SQL_WAREHOUSE_ID"]),
             client_id=os.environ["DATABRICKS_CLIENT_ID"],
             client_secret=os.environ["DATABRICKS_CLIENT_SECRET"],
         )
