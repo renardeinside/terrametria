@@ -14,6 +14,7 @@ Prerequisites:
 - Databricks CLI
 - Databricks workspace
 
+Steps:
 1. Clone the repository
 2. Setup the Python env for backend:
 ```
@@ -34,7 +35,7 @@ Note the catalog and schema name. You will need it to run the app. Grant access 
 
 Then, configure your environment variables in `.env` file:
 ```bash
-# client/secret id for a principal that has access to the
+# client/secret id for a principal that has access to the catalog and schema
 DATABRICKS_CLIENT_ID=
 DATABRICKS_CLIENT_SECRET=
 # Databricks workspace URL, without HTTP/HTTPS prefix
