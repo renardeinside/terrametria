@@ -85,6 +85,6 @@ After the app deployment, add a SQL warehouse to the app resources via UI. Give 
   - [Vite](https://vite.dev/)
   - [Deck.gl](https://deck.gl/)
 - Backend:
-  - FastAPI
-  - Databricks
-  - Databricks SQL
+  - [FastAPI](https://fastapi.tiangolo.com/)
+  - [Databricks Apps](https://docs.databricks.com/en/dev-tools/databricks-apps/index.html)
+  - [Databricks SQL](https://www.databricks.com/product/databricks-sql)
