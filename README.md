@@ -63,6 +63,10 @@ To deploy the app, login to your Databricks workspace from Databricks CLI:
 ```bash
 databricks auth login 
 ```
+Create the app if it's not-existent yet:
+```bash
+databricks apps create terrametria
+```
 
 Then, run the following command:
 ```bash
