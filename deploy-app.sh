@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # Check if the required arguments are provided
-if [ "$#" -ne 2 ]; then
-    echo "Usage: package.sh <DATABRICKS_WORKSPACE_PATH> <LAKEHOUSE_APP_NAME>"
+if [ "$#" -ne 3 ]; then
+    echo "Usage: package.sh <DATABRICKS_WORKSPACE_PATH> <LAKEHOUSE_APP_NAME> <PROFILE>"
     exit 1
 fi
 
 LAKEHOUSE_APP_NAME=$1
 DATABRICKS_WORKSPACE_PATH=$2
+PROFILE=$3
 
 
 # build the frontend
@@ -34,10 +35,10 @@ cp app.yml ./.build/
 
 # upload the application-related files to Databricks Workspace
 
-databricks workspace import-dir --overwrite ./.build ${DATABRICKS_WORKSPACE_PATH}
+databricks -p ${PROFILE} workspace import-dir --overwrite ./.build ${DATABRICKS_WORKSPACE_PATH}
 
 echo "Deploying the app to Databricks for app name: ${LAKEHOUSE_APP_NAME} and source code path: ${DATABRICKS_WORKSPACE_PATH}"
 
-databricks apps deploy ${LAKEHOUSE_APP_NAME} --source-code-path ${DATABRICKS_WORKSPACE_PATH}
+databricks apps -p ${PROFILE} deploy ${LAKEHOUSE_APP_NAME} --source-code-path ${DATABRICKS_WORKSPACE_PATH}
 
 echo "Successfully deployed the app to Databricks!"

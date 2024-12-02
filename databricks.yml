@@ -52,3 +52,8 @@ targets:
     default: true
     workspace:
       profile: fe-ws
+
+  dev-az:
+    mode: development
+    workspace:
+      profile: fe-az-ws

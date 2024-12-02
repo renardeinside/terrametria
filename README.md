@@ -70,12 +70,12 @@ databricks apps create terrametria
 
 Then, run the following command:
 ```bash
-./deploy-app.sh <app-name> <Workspace-FS-dir-for-app-files>
+./deploy-app.sh <app-name> <Workspace-FS-dir-for-app-files> <profile-name>
 ```
 
 For example:
 ```bash
-./deploy-app.sh terrametria /Workspace/Users/${MY_DATABRICKS_USERNAME}/apps/terrametria
+./deploy-app.sh terrametria /Workspace/Users/${MY_DATABRICKS_USERNAME}/apps/terrametria default
 ```
 
 During the App deployment, another service principal will be created. Make sure to grant access to the catalog and schema to this principal.
