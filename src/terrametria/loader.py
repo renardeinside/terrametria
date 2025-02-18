@@ -36,17 +36,17 @@ class Loader:
             z.extractall(output_path)
 
     def _prepare_catalog(self):
-        self.spark.sql(f"CREATE CATALOG IF NOT EXISTS {self.config.catalog}")
-        self.spark.sql(
-            f"CREATE SCHEMA IF NOT EXISTS {self.config.catalog}.{self.config.schema}"
-        )
+        # self.spark.sql(f"CREATE CATALOG IF NOT EXISTS {self.config.catalog}")
+        # self.spark.sql(
+        #     f"CREATE SCHEMA IF NOT EXISTS {self.config.catalog}.{self.config.schema}"
+        # )
         self.spark.sql(
             f"CREATE VOLUME IF NOT EXISTS {self.config.catalog}.{self.config.schema}.{self.config.volume}"
         )
 
     def run(self):
         logger.info("Preparing population density data")
-        # self._prepare_catalog()
+        self._prepare_catalog()
 
         store_path = self.volume_path / "population"
 
