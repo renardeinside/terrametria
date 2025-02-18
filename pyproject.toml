@@ -52,7 +52,7 @@ dev-backend = "uvicorn terrametria.backend:app --reload --host=0.0.0.0 --port=80
 build-for-apps = [
   "rm -rf .build",
   "mkdir -p .build",
-  "hatch build -t wheel",
+  "hatch build -t wheel -c",
   "cp ./dist/*.whl .build/",
   "cd .build && ls *.whl > requirements.txt",
 ]

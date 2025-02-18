@@ -9,7 +9,7 @@ artifacts:
   default:
     type: whl
     path: .
-    build: hatch build -t wheel
+    build: hatch build -t wheel -c
 
 variables:
   catalog:
