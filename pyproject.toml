@@ -37,6 +37,7 @@ dependencies = [
   "numpy",
   "requests",
   "httpx",
+  "hatchling"
 ]
 
 [project.scripts]
@@ -48,10 +49,18 @@ dev-frontend = "yarn --cwd src/frontend dev"
 build-frontend = "yarn --cwd src/frontend build"
 
 dev-backend = "uvicorn terrametria.backend:app --reload --host=0.0.0.0 --port=8000"
-deploy-and-run = [
-  'databricks bundle deploy --var="catalog=ivt" --var="schema=terrametria"',
-  "databricks bundle run terrametria",
+build-for-apps = [
+  "rm -rf .build",
+  "mkdir -p .build",
+  "hatch build -t wheel",
+  "cp ./dist/*.whl .build/",
+  "cd .build && ls *.whl > requirements.txt",
 ]
 
 
+[tool.hatch.build.targets.wheel]
+# we need to explicitly include this folder because it's .gitignore'd
+artifacts = ["src/terrametria/static/**"]
 
+[tool.hatch.build.hooks.custom]
+path = "hooks/build.py"

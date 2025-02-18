@@ -1,6 +1,10 @@
 bundle:
   name: terrametria
 
+sync:
+  include:
+    - .build
+  
 artifacts:
   default:
     type: whl
@@ -16,6 +20,9 @@ variables:
     type: string
     description: The schema name
     default: default
+  sql_warehouse:
+    type: string
+    description: The SQL warehouse to use
 
 resources:
   jobs:
@@ -42,6 +49,29 @@ resources:
             dependencies:
               - ./dist/*.whl
 
+  apps:
+    terrametria-app:
+      name: "terrametria"
+      description: "Hi-res 3d population visualization"
+      source_code_path: ./.build
+      config:
+        command: ["uvicorn", "terrametria.backend:app"]
+
+        env:
+          - name: "TERRAMETRIA_CATALOG"
+            value: "ivt"
+          - name: "TERRAMETRIA_SCHEMA"
+            value: "terrametria"
+          - name: "DATABRICKS_SQL_WAREHOUSE_ID"
+            valueFrom: "sql_warehouse" # resource key
+
+      resources:
+        - name: "sql_warehouse"
+          description: The SQL warehouse to use
+          sql_warehouse:
+            id: ${var.sql_warehouse}
+            permission: "CAN_USE"
+    
 targets:
   dev:
     # The default target uses 'mode: development' to create a development copy.
@@ -50,10 +80,3 @@ targets:
     # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
     mode: development
     default: true
-    workspace:
-      profile: fe-ws
-
-  dev-az:
-    mode: development
-    workspace:
-      profile: fe-az-ws
