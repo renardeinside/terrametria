@@ -63,4 +63,4 @@ build-for-apps = [
 artifacts = ["src/terrametria/static/**"]
 
 [tool.hatch.build.hooks.custom]
-path = "hooks/build.py"
+path = "hooks/yarn_build.py"

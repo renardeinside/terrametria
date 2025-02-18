@@ -46,7 +46,7 @@ class Loader:
 
     def run(self):
         logger.info("Preparing population density data")
-        self._prepare_catalog()
+        # self._prepare_catalog()
 
         store_path = self.volume_path / "population"
 

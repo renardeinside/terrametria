@@ -59,9 +59,9 @@ resources:
 
         env:
           - name: "TERRAMETRIA_CATALOG"
-            value: "ivt"
+            value: ${var.catalog}
           - name: "TERRAMETRIA_SCHEMA"
-            value: "terrametria"
+            value: ${var.schema}
           - name: "DATABRICKS_SQL_WAREHOUSE_ID"
             valueFrom: "sql_warehouse" # resource key
 
