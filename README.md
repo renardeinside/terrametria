@@ -57,26 +57,19 @@ Now open 2 terminals and run the following commands:
 
 Go to [`http://localhost:5173`](http://localhost:5173/) to see the app in action.
 
-## Deployment 
+## App deployment 
 
-To deploy the app, login to your Databricks workspace from Databricks CLI:
-```bash
-databricks auth login 
-```
-Create the app if it's not-existent yet:
-```bash
-databricks apps create terrametria
-```
+To deploy the app, you need to have a Databricks workspace and a service principal with access to the catalog and schema that you created in the previous step.
+You can deploy the app using the following command:
 
-Then, run the following command:
 ```bash
-./deploy-app.sh <app-name> <Workspace-FS-dir-for-app-files> <profile-name>
+databricks bundle deploy --var="catalog=<catalog>" --var="schema=<schema>" --var="sql_warehouse=<SQL_WAREHOUSE_ID>"
+databricks bundle run terrametria-app \
+  --var="catalog=<catalog>"\
+  --var="schema=<schema>"\
+  --var="sql_warehouse=<SQL_WAREHOUSE_ID>"
 ```
 
-For example:
-```bash
-./deploy-app.sh terrametria /Workspace/Users/${MY_DATABRICKS_USERNAME}/apps/terrametria default
-```
 
 During the App deployment, another service principal will be created. Make sure to grant access to the catalog and schema to this principal.
 After the app deployment, add a SQL warehouse to the app resources via UI. Give it a key `sql_warehouse`. The value should be the ID of the SQL warehouse that you want to use for the app.
